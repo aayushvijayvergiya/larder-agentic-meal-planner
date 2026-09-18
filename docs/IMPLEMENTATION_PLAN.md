@@ -1392,7 +1392,7 @@ async def test_weekly_tick_idempotent(client, make_user_complete, monkeypatch):
 **Interfaces:**
 - Produces: `palette`, `type`, `space`, `radius`, `toCssVariables(theme)` exactly as LLD §9.1; package `main: dist/index.js`, `types: dist/index.d.ts`, scripts `build: tsc`, `test: vitest run`, `typecheck: tsc --noEmit`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -1406,7 +1406,7 @@ describe("tokens", () => {
 });
 ```
 
-- [ ] **Step 2: Run** `pnpm --filter @larder/design-tokens test` → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS; `pnpm --filter @larder/design-tokens build`. **Step 5: Commit** `feat(tokens): design tokens package`.
+- [x] **Step 2: Run** `pnpm --filter @larder/design-tokens test` → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS; `pnpm --filter @larder/design-tokens build`. **Step 5: Commit** `feat(tokens): design tokens package`.
 
 ---
 
@@ -1418,7 +1418,7 @@ describe("tokens", () => {
 **Interfaces:**
 - Produces: `createApi(baseUrl, getToken)`, `ApiError`, `ApiProvider({api, children})`, `useApi()`, every hook listed in LLD §9.3 with the given query keys; deps `openapi-fetch`, `@tanstack/react-query` (peer `react`).
 
-- [ ] **Step 1: Generate the schema** with the API running (`pnpm api` in another terminal): `scripts/gen.sh`:
+- [x] **Step 1: Generate the schema** with the API running (`pnpm api` in another terminal): `scripts/gen.sh`:
 ```bash
 #!/usr/bin/env sh
 set -e
@@ -1426,7 +1426,7 @@ npx openapi-typescript "${API_URL:-http://localhost:8000}/openapi.json" -o src/s
 ```
 Commit the generated file.
 
-- [ ] **Step 2: Failing test**
+- [x] **Step 2: Failing test**
 
 ```ts
 import { describe, expect, it, vi } from "vitest";
@@ -1443,9 +1443,9 @@ describe("createApi", () => {
 });
 ```
 
-- [ ] **Step 3: Implement.** `createApi` returns an object with the typed `openapi-fetch` client as `raw` plus `request(method, path, init)` that throws `ApiError` on non-2xx. Hooks call `useApi()` and wrap `raw.GET/POST/...`. `useJob(jobId)` uses `refetchInterval: data => data?.status === "ready" || data?.status === "failed" ? false : 2000` and `onSuccess` invalidates `["plan"]` when ready (use `useEffect` on `data.status` since TanStack v5 removed `onSuccess`).
+- [x] **Step 3: Implement.** `createApi` returns an object with the typed `openapi-fetch` client as `raw` plus `request(method, path, init)` that throws `ApiError` on non-2xx. Hooks call `useApi()` and wrap `raw.GET/POST/...`. `useJob(jobId)` uses `refetchInterval: data => data?.status === "ready" || data?.status === "failed" ? false : 2000` and `onSuccess` invalidates `["plan"]` when ready (use `useEffect` on `data.status` since TanStack v5 removed `onSuccess`).
 
-- [ ] **Step 4: Run** `pnpm --filter @larder/api-client test typecheck` → PASS. **Step 5: Commit** `feat(client): generated api client and query hooks`.
+- [x] **Step 4: Run** `pnpm --filter @larder/api-client test typecheck` → PASS. **Step 5: Commit** `feat(client): generated api client and query hooks`.
 
 ---
 
@@ -1460,7 +1460,7 @@ describe("createApi", () => {
 **Interfaces:**
 - Produces: `ThemeProvider` + `useTheme()` returning `{theme, setTheme}` persisting to `localStorage["larder-theme"]` and setting `data-theme` on `<html>`; `globals.css` defines `:root` light vars, `[data-theme="dark"]` dark vars and `@media (prefers-color-scheme: dark) :root:not([data-theme="light"])`; Tailwind `@theme` maps `--color-bg`, `--color-surface`, `--color-ink`, `--color-ink-muted`, `--color-line`, `--color-accent`, etc.; fonts via `next/font/google` (Fraunces, Instrument Sans) exposed as `--font-display`, `--font-body`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```tsx
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -1474,9 +1474,9 @@ it("persists theme and sets data-theme", () => {
 });
 ```
 
-- [ ] **Step 2: Run** `pnpm --filter web test` → FAIL. **Step 3: Implement** scaffold, providers, UI kit (each component ≤ 80 lines, uses only token classes, focus ring per LLD §9.2), auth pages (`supabase.auth.signUp`/`signInWithPassword`, inline error text, link between pages), middleware redirect, `src/app/page.tsx` calling `useMe()` and routing per LLD §9.4. Delete the Next.js boilerplate page content and default CSS.
+- [x] **Step 2: Run** `pnpm --filter web test` → FAIL. **Step 3: Implement** scaffold, providers, UI kit (each component ≤ 80 lines, uses only token classes, focus ring per LLD §9.2), auth pages (`supabase.auth.signUp`/`signInWithPassword`, inline error text, link between pages), middleware redirect, `src/app/page.tsx` calling `useMe()` and routing per LLD §9.4. Delete the Next.js boilerplate page content and default CSS.
 
-- [ ] **Step 4: Run** `pnpm --filter web test typecheck lint` → PASS; `pnpm --filter web dev` and sign up against a Supabase project or `supabase start` local stack (document both in README). **Step 5: Commit** `feat(web): scaffold, theme, ui kit and auth`.
+- [x] **Step 4: Run** `pnpm --filter web test typecheck lint` → PASS; `pnpm --filter web dev` and sign up against a Supabase project or `supabase start` local stack (document both in README). **Step 5: Commit** `feat(web): scaffold, theme, ui kit and auth`.
 
 ---
 
@@ -1488,7 +1488,7 @@ it("persists theme and sets data-theme", () => {
 **Interfaces:**
 - Produces: `WidgetRenderer({widget, onSubmit: (answer: {kind: "widget", value: unknown} | {kind: "text", text: string}) => void, disabled})`; `ReviewCard({draft, onConfirm(overrides), onEdit})`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```tsx
 it("submits the right value shape per widget", () => {
@@ -1505,7 +1505,7 @@ it("submits the right value shape per widget", () => {
 });
 ```
 
-- [ ] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.6 (transcript, waiting state, review card → `useOnboardingComplete` → `router.replace("/pantry/setup")`). **Step 4: Run tests** → PASS; manual check of the whole conversation against the local API. **Step 5: Commit** `feat(web): onboarding conversation`.
+- [x] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.6 (transcript, waiting state, review card → `useOnboardingComplete` → `router.replace("/pantry/setup")`). **Step 4: Run tests** → PASS; manual check of the whole conversation against the local API. **Step 5: Commit** `feat(web): onboarding conversation`.
 
 ---
 
@@ -1517,12 +1517,12 @@ it("submits the right value shape per widget", () => {
 **Interfaces:**
 - Produces: `parseBulk(text: string): string[]` (splits on commas and newlines, trims, dedupes case-insensitively); `BulkAdd({onAdd(names)})`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 ```ts
 import { parseBulk } from "@/components/pantry/BulkAdd";
 it("parses commas and newlines", () => expect(parseBulk("Paneer, spinach\n toor dal,, Spinach")).toEqual(["Paneer", "spinach", "toor dal"]));
 ```
-- [ ] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4: setup page = textarea + suggestion chips (`usePantrySuggestions`) + "Add" + "Skip for now" → `/today`; pantry page = category sections, inline add per section, availability toggle (muted strike style when unavailable), rename on click, delete with undo-free confirm. **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): pantry setup and pantry management`.
+- [x] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4: setup page = textarea + suggestion chips (`usePantrySuggestions`) + "Add" + "Skip for now" → `/today`; pantry page = category sections, inline add per section, availability toggle (muted strike style when unavailable), rename on click, delete with undo-free confirm. **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): pantry setup and pantry management`.
 
 ---
 
@@ -1534,7 +1534,7 @@ it("parses commas and newlines", () => expect(parseBulk("Paneer, spinach\n toor 
 **Interfaces:**
 - Produces: `PlanEntryCard({entry, onSwap(reason), onFeedback(kind)})` anatomy per LLD §9.4; `JobBanner({job, onRetry})` per LLD §9.7; `ViewToggle` (single/family, hidden when household has one member).
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 ```tsx
 it("renders reason, coverage, variations and feedback state", () => {
   const entry = { id: "e", slot_label: "Dinner", reason: "Uses the spinach you have.", covered_ingredients: ["spinach"], missing_ingredients: [{ name: "cream", category: "dairy", is_optional: true }],
@@ -1547,7 +1547,7 @@ it("renders reason, coverage, variations and feedback state", () => {
   expect(screen.getByLabelText("Thumbs up")).toHaveAttribute("aria-pressed", "true");
 });
 ```
-- [ ] **Step 2: Run** → FAIL. **Step 3: Implement.** Today: header "Today, Thu 18 Sep" in display font, `CoverageLine` ("On hand for today: 8 of 11 ingredients"), "Unused this week: bottle gourd, okra" muted line, entries list, `JobBanner` when `active_job`, empty state "No plan yet" with "Plan my week" button (`useGeneratePlan`). Week: 7 columns ≥ 1024px, stacked below; "Regenerate week" with confirm sheet. Swap: sheet with reason chips ("Too heavy", "No time", "Had it recently", "Something else…" + text). **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): today and week plan screens`.
+- [x] **Step 2: Run** → FAIL. **Step 3: Implement.** Today: header "Today, Thu 18 Sep" in display font, `CoverageLine` ("On hand for today: 8 of 11 ingredients"), "Unused this week: bottle gourd, okra" muted line, entries list, `JobBanner` when `active_job`, empty state "No plan yet" with "Plan my week" button (`useGeneratePlan`). Week: 7 columns ≥ 1024px, stacked below; "Regenerate week" with confirm sheet. Swap: sheet with reason chips ("Too heavy", "No time", "Had it recently", "Something else…" + text). **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): today and week plan screens`.
 
 ---
 
@@ -1556,8 +1556,8 @@ it("renders reason, coverage, variations and feedback state", () => {
 **Files:**
 - Create: `src/components/meals/{MealList,MealForm,IngredientList}.tsx`, `src/app/(app)/meals/page.tsx`, `src/app/(app)/meals/new/page.tsx`, `src/app/(app)/meals/[id]/page.tsx`, `tests/meal-form.test.tsx`
 
-- [ ] **Step 1: Failing test:** `MealForm` submit calls `onSubmit({name, description, ingredients: ["spinach","paneer"], instructions})` when the ingredients textarea contains `"spinach\npaneer"`.
-- [ ] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4: list with search box and filters (meal type, source toggle "Mine / Suggested by Larder"); detail shows tags as chips, ingredient list with staple/optional markers, enrichment status note with "Try again" (`useEnrichMeal`), edit for user meals, delete with 409 message surfaced verbatim. **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): meal library`.
+- [x] **Step 1: Failing test:** `MealForm` submit calls `onSubmit({name, description, ingredients: ["spinach","paneer"], instructions})` when the ingredients textarea contains `"spinach\npaneer"`.
+- [x] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4: list with search box and filters (meal type, source toggle "Mine / Suggested by Larder"); detail shows tags as chips, ingredient list with staple/optional markers, enrichment status note with "Try again" (`useEnrichMeal`), edit for user meals, delete with 409 message surfaced verbatim. **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): meal library`.
 
 ---
 
@@ -1566,8 +1566,8 @@ it("renders reason, coverage, variations and feedback state", () => {
 **Files:**
 - Create: `src/app/(app)/shopping/page.tsx`, `src/app/(app)/household/page.tsx`, `src/app/(app)/profile/page.tsx`, `src/components/household/{MemberList,InviteCode,JoinForm,SlotsEditor,ScheduleForm}.tsx`, `tests/slots-editor.test.tsx`
 
-- [ ] **Step 1: Failing test:** `SlotsEditor` prevents duplicate keys and emits slots re-numbered by order on save.
-- [ ] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4. Household page sections: Members (owner sees Remove), Invite (owner: code in mono font with Copy; member: none), Join a household (code input; explains the implicit household will be replaced), Your view (ViewToggle), Meal slots, Refresh schedule (weekday select, two time inputs, timezone select from `Intl.supportedValuesOf("timeZone")`). Profile page: grouped editable fields with Save per group, "Clear health data" button, theme toggle, sign out, the non-medical-advice sentence. Shopping page: grouped list with local checkbox state and "Add to pantry" per item (`useAddPantryItems`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): shopping, household and profile`.
+- [x] **Step 1: Failing test:** `SlotsEditor` prevents duplicate keys and emits slots re-numbered by order on save.
+- [x] **Step 2: Run** → FAIL. **Step 3: Implement** per LLD §9.4. Household page sections: Members (owner sees Remove), Invite (owner: code in mono font with Copy; member: none), Join a household (code input; explains the implicit household will be replaced), Your view (ViewToggle), Meal slots, Refresh schedule (weekday select, two time inputs, timezone select from `Intl.supportedValuesOf("timeZone")`). Profile page: grouped editable fields with Save per group, "Clear health data" button, theme toggle, sign out, the non-medical-advice sentence. Shopping page: grouped list with local checkbox state and "Add to pantry" per item (`useAddPantryItems`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(web): shopping, household and profile`.
 
 ---
 
@@ -1576,9 +1576,9 @@ it("renders reason, coverage, variations and feedback state", () => {
 **Files:**
 - Create: `apps/web/playwright.config.ts`, `apps/web/e2e/first-run.spec.ts`; Modify: `apps/web/package.json` (`e2e: playwright test`)
 
-- [ ] **Step 1: Write the spec** per LLD §10.2 (`first-run.spec.ts`): unique email per run; sign up; loop: read the current widget type and answer (`page.getByTestId("widget-<type>")`); confirm review; bulk-add 5 pantry items; expect 4 `PlanEntryCard`s on Today (poll up to 60 s); open swap on the last card, choose "Too heavy", expect the card's meal name to change; click thumbs up; go to Shopping and expect at least one group.
-- [ ] **Step 2: Run** with the API (`LLM_PROVIDER=fake`) and Supabase local running: `pnpm --filter web e2e` → PASS. Fix any selector or flow gaps found.
-- [ ] **Step 3: Commit** `test(web): first-run end-to-end flow`.
+- [x] **Step 1: Write the spec** per LLD §10.2 (`first-run.spec.ts`): unique email per run; sign up; loop: read the current widget type and answer (`page.getByTestId("widget-<type>")`); confirm review; bulk-add 5 pantry items; expect 4 `PlanEntryCard`s on Today (poll up to 60 s); open swap on the last card, choose "Too heavy", expect the card's meal name to change; click thumbs up; go to Shopping and expect at least one group.
+- [x] **Step 2: Run** with the API (`LLM_PROVIDER=fake`) and Supabase local running: `pnpm --filter web e2e` → PASS. Fix any selector or flow gaps found.
+- [x] **Step 3: Commit** `test(web): first-run end-to-end flow`.
 
 ---
 
