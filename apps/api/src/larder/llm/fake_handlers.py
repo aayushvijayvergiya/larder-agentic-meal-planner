@@ -31,3 +31,33 @@ def register_default_handlers(fake) -> None:
 def _category_assignments(ctx: dict, schema: type[BaseModel]) -> BaseModel:
     # The static keyword map has already handled everything it recognises; the fake knows nothing more.
     return schema(assignments=[{"name": n, "category": "other"} for n in ctx.get("names", [])])
+
+
+@handler("MealEnrichment")
+def _meal_enrichment(ctx: dict, schema: type[BaseModel]) -> BaseModel:
+    from larder.agents.categorize.keyword_map import keyword_category
+    from larder.agents.planner.vocab import infer_allergens, infer_diet_tags, is_staple
+    from larder.services.normalize import normalize_name
+
+    names = [n for n in ctx.get("ingredients", []) if n and n.strip()]
+    if len(names) < 2:
+        names += [n for n in ("onion", "salt") if n not in names]
+    ingredients = [
+        {
+            "name": n,
+            "category": keyword_category(normalize_name(n)) or "other",
+            "is_staple": is_staple(n),
+            "is_optional": False,
+        }
+        for n in names
+    ]
+    slot_keys = [k for k in ctx.get("slot_keys", []) if k != "breakfast"] or ctx.get("slot_keys", []) or ["any"]
+    return schema(
+        description=f"{ctx.get('name', 'This dish')}, made from what you have.",
+        cuisine="home",
+        meal_types=[slot_keys[0]],
+        diet_tags=infer_diet_tags(names),
+        allergens=infer_allergens(names),
+        prep_minutes=30,
+        ingredients=ingredients,
+    )
