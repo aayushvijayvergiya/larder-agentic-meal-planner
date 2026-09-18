@@ -125,8 +125,9 @@ async def load_context(session: AsyncSession, inp: PlannerInput) -> PlanningCont
         )
         for m in meals
     ]
-    max_updated = max((m.updated_at for m in meals), default=None)
-    version = f"{len(meals)}:{max_updated.isoformat() if max_updated else ''}"
+    user_meals = [m for m in meals if m.source == "user"]
+    max_updated = max((m.updated_at for m in user_meals), default=None)
+    version = f"{len(user_meals)}:{max_updated.isoformat() if max_updated else ''}"
 
     recent_rows = await session.scalars(
         select(PlanEntry.meal_id)

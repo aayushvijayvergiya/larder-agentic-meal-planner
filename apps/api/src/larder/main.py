@@ -15,7 +15,7 @@ from larder.db.session import init_session_factory
 from larder.errors import register_error_handlers
 from larder.llm.factory import get_llm
 from larder.logging import RequestIdMiddleware, configure_logging
-from larder.routers import health, households, me, meals, onboarding, pantry, plans
+from larder.routers import health, households, internal, me, meals, onboarding, pantry, plans
 from larder.services.plans import enqueue_first_plan
 
 API_PREFIX = "/api/v1"
@@ -76,6 +76,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         pantry.router,
         meals.router,
         plans.router,
+        internal.router,
     ):
         app.include_router(r, prefix=API_PREFIX)
     return app
