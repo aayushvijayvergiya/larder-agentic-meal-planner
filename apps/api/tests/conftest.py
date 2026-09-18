@@ -1,5 +1,7 @@
+import asyncio
 import os
 import subprocess
+import sys
 import uuid
 from types import SimpleNamespace
 
@@ -28,6 +30,14 @@ ALL_TABLES = (
     "profiles, households, household_members, household_invites, pantry_items, meals, meal_ingredients, "
     "meal_plans, plan_entries, plan_entry_variations, plan_jobs, meal_feedback, refresh_runs"
 )
+
+
+@pytest.fixture(scope="session")
+def event_loop_policy():
+    """psycopg's async driver (LangGraph checkpointer) cannot run on Windows' Proactor loop."""
+    if sys.platform == "win32":
+        return asyncio.WindowsSelectorEventLoopPolicy()
+    return asyncio.DefaultEventLoopPolicy()
 
 
 @pytest.fixture(scope="session", autouse=True)
