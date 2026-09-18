@@ -32,8 +32,10 @@ export default function OnboardingPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const started = useRef(false);
 
+  // Someone who already finished onboarding lands on Today. Once a conversation has started here, the
+  // completion refetch must not hijack the hand-off to pantry setup.
   useEffect(() => {
-    if (me.data?.onboarding_status === "complete") router.replace("/today");
+    if (me.data?.onboarding_status === "complete" && !started.current) router.replace("/today");
   }, [me.data, router]);
 
   useEffect(() => {
