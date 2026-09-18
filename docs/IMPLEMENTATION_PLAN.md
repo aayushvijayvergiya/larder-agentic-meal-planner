@@ -627,7 +627,7 @@ class GroqLLM:
 **Interfaces:**
 - Produces: `create_implicit_household(session, profile) -> Household`; `generate_invite(session, household, created_by, expires_in_days=7, max_uses=10) -> HouseholdInvite`; `join_by_code(session, user: CurrentUser, code) -> Household`; `remove_member(session, actor: CurrentUser, household_id, user_id) -> Household | None` (returns the removed user's new implicit household); `set_preferred_view(session, user, view)`; `update_household(session, household, patch)`; `active_scopes(household) -> list[tuple[str, UUID | None]]` (LLD §7.5); endpoints LLD §6.5. Plan generation does not exist yet at this point: `remove_member` returns the removed user's new implicit household, and the router only returns 204. Task 18 modifies this router to call `plans.request_generation` for that household.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_active_scopes.py
@@ -690,11 +690,11 @@ async def test_patch_household_slots_and_schedule(client, make_user_complete):
     assert r.status_code == 200 and r.json()["is_implicit"] is False and len(r.json()["slots"]) == 2
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL.
+- [x] **Step 2: Run to verify failure** → FAIL.
 
-- [ ] **Step 3: Implement** service and router per LLD §6.5 and §4.3. Invite code alphabet `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, 8 chars via `secrets.choice`. Timezone validated with `zoneinfo.ZoneInfo(tz)` (raise `validation("unknown timezone", field="timezone")`). Slots: 1–6, unique keys, re-sorted by `order`.
+- [x] **Step 3: Implement** service and router per LLD §6.5 and §4.3. Invite code alphabet `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, 8 chars via `secrets.choice`. Timezone validated with `zoneinfo.ZoneInfo(tz)` (raise `validation("unknown timezone", field="timezone")`). Slots: 1–6, unique keys, re-sorted by `order`.
 
-- [ ] **Step 4: Run** `uv run pytest -v` → PASS. **Step 5: Commit** `feat(api): households, invites, membership`.
+- [x] **Step 4: Run** `uv run pytest -v` → PASS. **Step 5: Commit** `feat(api): households, invites, membership`.
 
 ---
 
@@ -710,7 +710,7 @@ async def test_patch_household_slots_and_schedule(client, make_user_complete):
 **Interfaces:**
 - Produces: `normalize_name(str) -> str`, `tokens(str) -> set[str]`, `ingredient_matches_pantry(ingredient_norm, pantry_norms: set[str]) -> str | None`; `KEYWORDS: dict[str, str]` (≥ 250 entries), `SUGGESTIONS: list[tuple[str, str]]` (≥ 60), `CATEGORY_ORDER: list[str]`, `CATEGORY_LABELS: dict[str, str]`; `class CategoryAssignments(BaseModel): assignments: list[CategoryAssignment(name: str, category: PantryCategory)]`; `async categorize(llm, names: list[str]) -> dict[str, str]` (keys are the input names as given).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_normalize.py
@@ -751,9 +751,9 @@ async def test_llm_failure_falls_back_to_other():
     assert (await categorize(llm, ["mystery"]))["mystery"] == "other"
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.1 and §8.4. The keyword map must include Indian staples across all categories (dals, flours, spices, vegetables, fruits, dairy, proteins) plus common global items.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.1 and §8.4. The keyword map must include Indian staples across all categories (dals, flours, spices, vegetables, fruits, dairy, proteins) plus common global items.
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): name normalisation and pantry categoriser`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): name normalisation and pantry categoriser`.
 
 ---
 
@@ -766,7 +766,7 @@ async def test_llm_failure_falls_back_to_other():
 **Interfaces:**
 - Produces: `list_grouped(session, household_id) -> PantryGrouped`; `add_items(session, llm, household, added_by, items: list[PantryItemIn]) -> tuple[list[PantryItem], list[PantryItem]]`; `update_item`, `delete_item`; `suggestions(session, household_id) -> list[dict]`; endpoints LLD §6.6.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 async def test_bulk_add_groups_and_dedupes(client, make_user_complete):
@@ -798,7 +798,7 @@ async def test_suggestions_exclude_present(client, make_user_complete):
     assert "onion" not in [i["name"] for i in r.json()["items"]]
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.6 (categoriser used only for items with no category; `llm` from `request.app.state.llm`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): pantry endpoints`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.6 (categoriser used only for items with no category; `llm` from `request.app.state.llm`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): pantry endpoints`.
 
 ---
 
@@ -814,7 +814,7 @@ async def test_suggestions_exclude_present(client, make_user_complete):
 **Interfaces:**
 - Produces: `IngredientDraft`, `MealEnrichment` (LLD §8.3), `enrich_meal(llm, *, name, description, ingredients, instructions, slot_keys) -> MealEnrichment`; `vocab.ALLERGENS`, `vocab.DIET_TAGS`, `vocab.diet_ok(diet_type: str, diet_tags: list[str]) -> bool`; `fake_handlers.register_default_handlers(fake)` registering `MealEnrichment` and `CategoryAssignments` handlers (planner and onboarding handlers are added in Tasks 12 and 17).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_diet_matrix.py
@@ -844,9 +844,9 @@ async def test_unknown_tags_are_dropped():
     assert out.diet_tags == ["vegetarian"] and out.allergens == ["dairy"]
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** Fake `MealEnrichment` handler: reads `ingredients` and `slot_keys` from context; returns those ingredients (category via `KEYWORDS`, else `other`; marks `salt/oil/water/sugar` staple) plus `["onion","salt"]` if fewer than 2; `diet_tags=["vegetarian"]` unless any ingredient token is in `{chicken, mutton, fish, egg, prawn}`; `allergens` derived (`paneer/milk/cream/ghee/curd → dairy`, `egg → egg`); `prep_minutes=30`; `meal_types=[first non-breakfast slot key]`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** Fake `MealEnrichment` handler: reads `ingredients` and `slot_keys` from context; returns those ingredients (category via `KEYWORDS`, else `other`; marks `salt/oil/water/sugar` staple) plus `["onion","salt"]` if fewer than 2; `diet_tags=["vegetarian"]` unless any ingredient token is in `{chicken, mutton, fish, egg, prawn}`; `allergens` derived (`paneer/milk/cream/ghee/curd → dairy`, `egg → egg`); `prep_minutes=30`; `meal_types=[first non-breakfast slot key]`.
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): meal enrichment agent and diet vocabulary`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): meal enrichment agent and diet vocabulary`.
 
 ---
 
@@ -859,7 +859,7 @@ async def test_unknown_tags_are_dropped():
 **Interfaces:**
 - Produces: `create_meal(session, llm, household, created_by, body) -> Meal`; `list_meals(session, household_id, query, meal_type, source) -> list[Meal]`; `get_meal`, `update_meal`, `delete_meal` (409 if referenced by an active plan), `re_enrich`; `add_feedback(session, household_id, member_id, meal_id, kind, plan_entry_id, comment) -> FeedbackSummary`; `feedback_summary(session, household_id, meal_ids) -> dict[UUID, FeedbackSummary]`; `MealOut.from_model(meal, summary)`; endpoints LLD §6.7.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 async def test_create_meal_enriches(client, make_user_complete):
@@ -895,7 +895,7 @@ async def test_list_filters_and_search(client, make_user_complete):
     assert [m["name"] for m in r.json()["meals"]] == ["Poha"]
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.7 (search is `ILIKE %query%` on name; `meal_type` filters `meal_types @> ARRAY[x]` or contains `any`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): meal library and feedback`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.7 (search is `ILIKE %query%` on name; `meal_type` filters `meal_types @> ARRAY[x]` or contains `any`). **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): meal library and feedback`.
 
 ---
 
@@ -911,7 +911,7 @@ async def test_list_filters_and_search(client, make_user_complete):
 **Interfaces:**
 - Produces: `FIELDS: list[FieldSpec]` where `FieldSpec(name, description, widget: Widget, validate: Callable[[Any], Any], default_question: str, condition: Callable[[dict], bool] | None)`; `next_field(draft: dict) -> FieldSpec | None`; `coerce_widget_value(field, value) -> Any`; `ProfileDraft(BaseModel)` with all 15 fields optional; `build_onboarding_graph(checkpointer) -> CompiledGraph`; `async run_turn(graph, llm, user_id, last_answer: dict | None) -> TurnResult(message, widget, field, draft, progress, is_complete)`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_fields.py
@@ -953,9 +953,9 @@ async def test_full_conversation_with_one_invalid_and_one_text_answer():
     assert t.widget.type == "review" and t.draft.weight_kg == 58 and t.progress.answered == 16
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §8.1. `run_turn` invokes `graph.ainvoke({"last_answer": last_answer, "user_id": user_id}, config={"configurable": {"thread_id": f"onb_{user_id}", "llm": llm}})`; nodes read `llm` from `config["configurable"]["llm"]`. State reducers: `draft` merges dicts; `history` appends and trims to 20. Fake `ParsedFieldAnswer` default handler returns `value=None, confidence=0` (so unscripted text answers re-ask). `progress.total` counts fields whose condition holds for the current draft.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §8.1. `run_turn` invokes `graph.ainvoke({"last_answer": last_answer, "user_id": user_id}, config={"configurable": {"thread_id": f"onb_{user_id}", "llm": llm}})`; nodes read `llm` from `config["configurable"]["llm"]`. State reducers: `draft` merges dicts; `history` appends and trims to 20. Fake `ParsedFieldAnswer` default handler returns `value=None, confidence=0` (so unscripted text answers re-ask). `progress.total` counts fields whose condition holds for the current draft.
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): onboarding agent graph`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): onboarding agent graph`.
 
 ---
 
@@ -968,7 +968,7 @@ async def test_full_conversation_with_one_invalid_and_one_text_answer():
 **Interfaces:**
 - Produces: endpoints LLD §6.4 (`/onboarding/complete` returns `first_plan_job_id: None` until Task 18 wires plan generation; Task 18 modifies this router).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 import uuid
@@ -1004,9 +1004,9 @@ async def test_household_endpoints_blocked_before_onboarding(client):
     assert r.status_code == 409 and r.json()["error"]["code"] == "onboarding_incomplete"
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** Checkpointer: `AsyncPostgresSaver.from_conn_string(url)` is a context manager; keep it open for the app lifetime inside `lifespan` (`saver = await stack.enter_async_context(AsyncPostgresSaver.from_conn_string(url))`, `await saver.setup()`). In tests the same Postgres is used; add `checkpoint*` tables to nothing (they are not truncated; thread ids are per random user id).
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** Checkpointer: `AsyncPostgresSaver.from_conn_string(url)` is a context manager; keep it open for the app lifetime inside `lifespan` (`saver = await stack.enter_async_context(AsyncPostgresSaver.from_conn_string(url))`, `await saver.setup()`). In tests the same Postgres is used; add `checkpoint*` tables to nothing (they are not truncated; thread ids are per random user id).
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): onboarding endpoints with postgres checkpointer`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): onboarding endpoints with postgres checkpointer`.
 
 ---
 
@@ -1021,7 +1021,7 @@ async def test_household_endpoints_blocked_before_onboarding(client):
 **Interfaces:**
 - Produces: `PlannerInput, MemberCtx, PantryCtx, IngredientCtx, MealCtx, FixedEntryCtx, PlanningContext, MealCandidate, NewMealDraft, IngredientDraft (re-export from enrichment), VariationDraft, EntryDraft, PlanDraft, PlannerState`; `medical_rules.rules_for(conditions: list[dict]) -> MedicalRules(hard_allergens: set[str], avoid_tokens: set[str])`; `async load_context(session, inp: PlannerInput) -> PlanningContext`; `compute_inputs_hash(ctx) -> str`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_medical_rules.py
@@ -1054,9 +1054,9 @@ async def test_load_context_week_and_today(client, make_user_complete, db_sessio
 ```
 Add a `planning_context_factory` fixture in `tests/conftest.py` that builds an in-memory `PlanningContext` with one member, the given pantry names and one library meal ("Dal", ingredients dal/onion).
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.3, §7.4, §8.2. `load_context` loads members via `HouseholdMember` (scope single → only `member_id`), pantry, library meals with ingredients and feedback aggregates (`feedback_summary` from Task 11), `recent_meal_ids` from `plan_entries` joined to `meal_plans` of the household with `date` in `[start-14, start)`, `fixed_entries` for today/slot modes, `requested` pairs as LLD §8.2. `age` from `date_of_birth`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.3, §7.4, §8.2. `load_context` loads members via `HouseholdMember` (scope single → only `member_id`), pantry, library meals with ingredients and feedback aggregates (`feedback_summary` from Task 11), `recent_meal_ids` from `plan_entries` joined to `meal_plans` of the household with `date` in `[start-14, start)`, `fixed_entries` for today/slot modes, `requested` pairs as LLD §8.2. `age` from `date_of_birth`.
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner context, medical rules and inputs hash`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner context, medical rules and inputs hash`.
 
 ---
 
@@ -1069,7 +1069,7 @@ Add a `planning_context_factory` fixture in `tests/conftest.py` that builds an i
 **Interfaces:**
 - Produces: `coverage.compute(ingredients: list[IngredientCtx], pantry_norms: set[str]) -> CoverageResult(coverage: float, covered: list[str], missing: list[IngredientCtx])`; `shortlist.build(ctx: PlanningContext, start_date: date) -> list[MealCandidate]` (LLD §8.2 shortlist rules); `shortlist.hard_conflict(meal: MealCtx, members: list[MemberCtx]) -> str | None` (reason string or None).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_coverage.py
@@ -1096,7 +1096,7 @@ def test_scoring_prefers_coverage_and_penalises_recent(planning_context_factory)
     assert ranked[0].meal.name == "Dal" and ranked[0].coverage == 1.0 and ranked[1].score < ranked[0].score
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner shortlist and coverage scoring`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner shortlist and coverage scoring`.
 
 ---
 
@@ -1109,7 +1109,7 @@ def test_scoring_prefers_coverage_and_penalises_recent(planning_context_factory)
 **Interfaces:**
 - Produces: `validate(draft: PlanDraft, ctx: PlanningContext, shortlist: list[MealCandidate]) -> ValidationResult(violations: list[str], warnings: list[str], bad_entry_indexes: set[int])`; `fallback_fill(draft: PlanDraft | None, result: ValidationResult, ctx, shortlist) -> PlanDraft`; `SIMPLE_BOWL(slot_key) -> NewMealDraft` (LLD §5.3 definition).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_validate.py
@@ -1145,7 +1145,7 @@ def test_fallback_fills_everything_validly(planning_context_factory):
     assert len(draft.entries) == 6 and validate(draft, ctx, sl).violations == []
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §8.2 (hard and soft rules list; `bad_entry_indexes` = indexes of entries involved in any hard violation plus duplicates). Fallback uses shortlist candidates round-robin (max 2 uses each), then `SIMPLE_BOWL`. **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner validator and deterministic fallback`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §8.2 (hard and soft rules list; `bad_entry_indexes` = indexes of entries involved in any hard violation plus duplicates). Fallback uses shortlist candidates round-robin (max 2 uses each), then `SIMPLE_BOWL`. **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): planner validator and deterministic fallback`.
 
 ---
 
@@ -1159,7 +1159,7 @@ def test_fallback_fills_everything_validly(planning_context_factory):
 **Interfaces:**
 - Produces: `build_planner_graph() -> CompiledGraph`; `async run_planner(session_factory, llm, inp: PlannerInput) -> PlannerOutcome(plan_id, attempts, used_fallback, inputs_hash, entries_written: int)`; `persist(session, inp, ctx, draft, ...)`; `persist` also updates `plan_jobs` fields `attempts`, `used_fallback`, `model_name`, `inputs_hash`.
 
-- [ ] **Step 1: Write failing tests** (fixture `plan_setup` in conftest: creates user, pantry `spinach, paneer, rice, toor dal, onion, tomato`, library meals `Palak paneer`, `Dal tadka`, `Jeera rice`, `Poha`, and an active `meal_plans` row + queued `plan_jobs` row for the given mode; returns `PlannerInput`).
+- [x] **Step 1: Write failing tests** (fixture `plan_setup` in conftest: creates user, pantry `spinach, paneer, rice, toor dal, onion, tomato`, library meals `Palak paneer`, `Dal tadka`, `Jeera rice`, `Poha`, and an active `meal_plans` row + queued `plan_jobs` row for the given mode; returns `PlannerInput`).
 
 ```python
 # tests/agents/test_planner_week.py
@@ -1204,9 +1204,9 @@ async def test_three_bad_drafts_trigger_fallback(plan_setup, fake_llm):
 ```
 Write the elided tests in full following the first two.
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** graph per LLD §8.2 (`StateGraph(PlannerState)`, conditional edges on `violations`/`attempts`), prompts verbatim, `persist` in one transaction. `run_planner` opens its own session for `load_context` and `persist`, sets `job.inputs_hash` right after context load and commits it (so the scheduler can compare even if drafting fails). Fake `PlanDraft` handler reads `requested`, `shortlist`, `slots` from context and fills round-robin.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** graph per LLD §8.2 (`StateGraph(PlannerState)`, conditional edges on `violations`/`attempts`), prompts verbatim, `persist` in one transaction. `run_planner` opens its own session for `load_context` and `persist`, sets `job.inputs_hash` right after context load and commits it (so the scheduler can compare even if drafting fails). Fake `PlanDraft` handler reads `requested`, `shortlist`, `slots` from context and fills round-robin.
 
-- [ ] **Step 4: Run** `uv run pytest tests/agents -v` → PASS. **Step 5: Commit** `feat(api): planner graph with repair loop and persistence`.
+- [x] **Step 4: Run** `uv run pytest tests/agents -v` → PASS. **Step 5: Commit** `feat(api): planner graph with repair loop and persistence`.
 
 ---
 
@@ -1220,7 +1220,7 @@ Write the elided tests in full following the first two.
 **Interfaces:**
 - Produces: `request_generation(session, user, scope, mode, date, origin, background) -> (job_id, plan_id)`; `request_swap(session, user, plan_id, entry_id, reason, background) -> job_id`; `get_current_plan(session, user, scope, date) -> CurrentPlanOut`; `get_job(session, user, job_id)`; `jobs.runner.enqueue(job_id, background)`, `run_job(job_id)`; endpoints LLD §6.8 (shopping list added in Task 19). Tests run background tasks inline: in `conftest`, an autouse fixture `inline_jobs` monkeypatches `larder.jobs.runner.enqueue` with `async def _inline(job_id, background): await run_job(job_id)`. For the patch to take effect, every caller must invoke it as a module attribute (`from larder.jobs import runner` … `await runner.enqueue(job_id, background)`), never `from larder.jobs.runner import enqueue`. `request_generation(..., start_date, end_date)` accepts an explicit `end_date` (default `start_date + 6`) so the scheduler's gap-fill plans (LLD §7.5) reuse it.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 from datetime import date
@@ -1269,9 +1269,9 @@ async def test_onboarding_complete_enqueues_first_plan(client):
     assert (await client.get("/api/v1/plans/current", headers=h)).json()["plan"] is not None
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.8 and §7.6. `CurrentPlanOut` builds `days`, `coverage` (`on_hand` = sum of covered, `needed` = covered + non-optional missing), `my_feedback`, `cooked_count`, `unused_pantry` (Task 19 supplies the function; return `[]` until then), `active_job` = latest queued/running job.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §6.8 and §7.6. `CurrentPlanOut` builds `days`, `coverage` (`on_hand` = sum of covered, `needed` = covered + non-optional missing), `my_feedback`, `cooked_count`, `unused_pantry` (Task 19 supplies the function; return `[]` until then), `active_job` = latest queued/running job.
 
-- [ ] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): plan generation, swap, job polling`.
+- [x] **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): plan generation, swap, job polling`.
 
 ---
 
