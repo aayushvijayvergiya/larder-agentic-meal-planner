@@ -106,6 +106,7 @@ class PlanningContext(BaseModel):
     slots: list[SlotDef]
     recent_meal_ids: list[UUID] = []
     fixed_entries: list[FixedEntryCtx] = []
+    replacing: list[FixedEntryCtx] = []  # entries at requested pairs (today/slot modes): what is being swapped out
     requested: list[tuple[date, str]] = []
     library_count_and_max_updated: str = "0:"
 

@@ -153,6 +153,11 @@ async def load_context(session: AsyncSession, inp: PlannerInput) -> PlanningCont
         for e in existing
         if (e.date, e.slot_key) not in requested_set
     ]
+    replacing = [
+        FixedEntryCtx(date=e.date, slot_key=e.slot_key, meal_name=e.meal.name, meal_id=e.meal_id)
+        for e in existing
+        if (e.date, e.slot_key) in requested_set
+    ]
 
     return PlanningContext(
         members=members,
@@ -161,6 +166,7 @@ async def load_context(session: AsyncSession, inp: PlannerInput) -> PlanningCont
         slots=slots,
         recent_meal_ids=recent_meal_ids,
         fixed_entries=fixed,
+        replacing=replacing,
         requested=requested,
         library_count_and_max_updated=version,
     )

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     checkpoint_database_url: str | None = None
     supabase_url: str = ""
     supabase_jwt_secret: str = ""
+    supabase_anon_key: str = ""  # sent as `apikey` when fetching JWKS (needed by the local gateway)
     auth_mode: Literal["jwks", "hs256"] = "jwks"
     jwt_audience: str = "authenticated"
     llm_provider: Literal["groq", "fake"] | None = None

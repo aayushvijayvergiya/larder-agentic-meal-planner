@@ -102,6 +102,7 @@ def _plan_draft(ctx: dict, schema: type[BaseModel]) -> BaseModel:
     counts: Counter[str] = Counter()
     for f in ctx.get("fixed_entries", []):
         counts[f.get("meal_name", "")] += 1
+    avoid = {r.get("meal_name", "") for r in ctx.get("replacing", [])}
     entries = []
     cursor = 0
     variant_by_slot: dict[str, int] = {}
@@ -110,7 +111,7 @@ def _plan_draft(ctx: dict, schema: type[BaseModel]) -> BaseModel:
         for _ in range(len(shortlist)):
             cand = shortlist[cursor % len(shortlist)]
             cursor += 1
-            if counts[cand["name"]] < 2:
+            if counts[cand["name"]] < 2 and cand["name"] not in avoid:
                 counts[cand["name"]] += 1
                 covered = ", ".join(cand.get("covered", [])[:3])
                 chosen = {
@@ -122,7 +123,7 @@ def _plan_draft(ctx: dict, schema: type[BaseModel]) -> BaseModel:
                 break
         if chosen is None:
             variant = variant_by_slot.get(slot, 0)
-            while counts[SIMPLE_BOWL(slot, variant).name] >= 2:
+            while counts[SIMPLE_BOWL(slot, variant).name] >= 2 or SIMPLE_BOWL(slot, variant).name in avoid:
                 variant += 1
             bowl = SIMPLE_BOWL(slot, variant)
             counts[bowl.name] += 1

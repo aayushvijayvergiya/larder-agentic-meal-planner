@@ -94,6 +94,9 @@ def prompt_context(inp: PlannerInput, ctx: PlanningContext, shortlist: list[Meal
         "fixed_entries": [
             {"date": f.date.isoformat(), "slot_key": f.slot_key, "meal_name": f.meal_name} for f in ctx.fixed_entries
         ],
+        "replacing": [
+            {"date": r.date.isoformat(), "slot_key": r.slot_key, "meal_name": r.meal_name} for r in ctx.replacing
+        ],
         "swap_reason": inp.swap_reason,
         "soft_rules": SOFT_RULES,
     }
