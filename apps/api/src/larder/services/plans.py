@@ -214,6 +214,22 @@ async def enqueue_first_plan(
     return job_id
 
 
+async def get_shopping_list(session: AsyncSession, household: Household, plan_id: uuid.UUID):
+    from larder.services.shopping import build_shopping_list
+
+    plan = await session.get(MealPlan, plan_id)
+    if plan is None or plan.household_id != household.id:
+        raise not_found("Plan not found")
+    entries = (
+        await session.scalars(
+            select(PlanEntry).where(PlanEntry.plan_id == plan.id).options(selectinload(PlanEntry.meal))
+        )
+    ).all()
+    meals_by_id = {e.meal_id: e.meal for e in entries}
+    from_date = max(household_today(household), plan.start_date)
+    return build_shopping_list(entries, meals_by_id, from_date, to_date=plan.end_date)
+
+
 async def get_job(session: AsyncSession, household: Household, job_id: uuid.UUID) -> PlanJob:
     job = await session.scalar(
         select(PlanJob)

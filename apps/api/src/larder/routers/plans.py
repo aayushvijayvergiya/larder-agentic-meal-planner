@@ -12,6 +12,7 @@ from larder.schemas.plans import (
     GenerateRequest,
     GenerateResponse,
     JobOut,
+    ShoppingListOut,
     SwapRequest,
     SwapResponse,
 )
@@ -75,6 +76,13 @@ async def swap(
         llm=request.app.state.llm,
     )
     return SwapResponse(job_id=job_id)
+
+
+@router.get("/{plan_id}/shopping-list", response_model=ShoppingListOut)
+async def shopping_list(
+    plan_id: UUID, user: CurrentUser = Depends(require_household), session: AsyncSession = Depends(get_session)
+) -> ShoppingListOut:
+    return await svc.get_shopping_list(session, user.household, plan_id)
 
 
 @router.get("/jobs/{job_id}", response_model=JobOut)

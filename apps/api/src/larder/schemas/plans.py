@@ -93,6 +93,24 @@ class SwapResponse(BaseModel):
     job_id: UUID
 
 
+class ShoppingItemOut(BaseModel):
+    name: str
+    meals: list[str]
+
+
+class ShoppingGroupOut(BaseModel):
+    category: PantryCategory
+    label: str
+    items: list[ShoppingItemOut]
+
+
+class ShoppingListOut(BaseModel):
+    from_date: dt.date
+    to_date: dt.date
+    groups: list[ShoppingGroupOut]
+    total: int
+
+
 class JobOut(BaseModel):
     id: UUID
     plan_id: UUID
