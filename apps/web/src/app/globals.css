@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* Larder design tokens (LLD §9.1). Light is the default; dark via data-theme or system preference. */
+:root {
+  --bg: #f7f4ee;
+  --surface: #ffffff;
+  --surface-alt: #f1ece3;
+  --ink: #1f1d1a;
+  --ink-muted: #6b655c;
+  --line: #e6e0d6;
+  --accent: #b4532a;
+  --accent-ink: #ffffff;
+  --accent-soft: #f4e3da;
+  --success: #3e7c4a;
+  --warning: #b7791f;
+  --danger: #b42318;
+  --focus: #2f5d9f;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #16140f;
+  --surface: #1f1c16;
+  --surface-alt: #26221b;
+  --ink: #efe9df;
+  --ink-muted: #a39b8e;
+  --line: #2e2a22;
+  --accent: #e07a4b;
+  --accent-ink: #16140f;
+  --accent-soft: #3a251b;
+  --success: #7fb98a;
+  --warning: #d9a441;
+  --danger: #e5735f;
+  --focus: #8ab4f8;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16140f;
+    --surface: #1f1c16;
+    --surface-alt: #26221b;
+    --ink: #efe9df;
+    --ink-muted: #a39b8e;
+    --line: #2e2a22;
+    --accent: #e07a4b;
+    --accent-ink: #16140f;
+    --accent-soft: #3a251b;
+    --success: #7fb98a;
+    --warning: #d9a441;
+    --danger: #e5735f;
+    --focus: #8ab4f8;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-focus: var(--focus);
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-instrument), system-ui, sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
