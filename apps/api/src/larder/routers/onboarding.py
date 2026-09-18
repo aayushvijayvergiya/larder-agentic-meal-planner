@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from larder.agents.onboarding.graph import TurnResult, current_state, run_turn, thread_id_for
@@ -70,6 +70,7 @@ async def turn(
 async def complete(
     body: CompleteRequest,
     request: Request,
+    background: BackgroundTasks,
     user: CurrentUser = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> CompleteResponse:
@@ -92,7 +93,9 @@ async def complete(
     await session.commit()
     household = await get_household(session, household.id)
     await session.refresh(user.profile)
-    first_job_id = await request.app.state.first_plan_hook(session, user.profile, household, request)
+    first_job_id = await request.app.state.first_plan_hook(
+        session, user.profile, household, background, request.app.state.llm
+    )
     return CompleteResponse(
         profile=ProfileOut.model_validate(user.profile),
         household=HouseholdOut.from_model(household),

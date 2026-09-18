@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from larder.auth.deps import CurrentUser, require_household, require_owner
@@ -8,6 +8,7 @@ from larder.db.session import get_session
 from larder.schemas.common import HouseholdOut, MemberSummary
 from larder.schemas.households import HouseholdPatch, InviteCreate, InviteOut, JoinRequest, PreferredViewPatch
 from larder.services import households as svc
+from larder.services import plans as plans_svc
 
 router = APIRouter(prefix="/households", tags=["households"])
 
@@ -81,10 +82,24 @@ async def revoke_invite(
 async def remove_member(
     household_id: UUID,
     user_id: UUID,
+    request: Request,
+    background: BackgroundTasks,
     user: CurrentUser = Depends(require_household),
     session: AsyncSession = Depends(get_session),
 ) -> Response:
-    await svc.remove_member(session, user, household_id, user_id)
+    new_household = await svc.remove_member(session, user, household_id, user_id)
+    if new_household is not None:
+        await plans_svc.request_generation(
+            session,
+            household=new_household,
+            scope="single",
+            member_id=user_id,
+            mode="week",
+            on_date=None,
+            origin="user",
+            background=background,
+            llm=request.app.state.llm,
+        )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

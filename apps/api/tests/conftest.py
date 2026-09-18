@@ -54,6 +54,17 @@ async def client():
             yield c
 
 
+@pytest.fixture(autouse=True)
+def inline_jobs(monkeypatch):
+    """Run background plan jobs inline so tests can assert on results immediately."""
+    from larder.jobs import runner
+
+    async def _inline(job_id, background, llm):
+        await runner.run_job(job_id, llm)
+
+    monkeypatch.setattr(runner, "enqueue", _inline)
+
+
 @pytest.fixture
 def fake_llm(client):
     """The app's FakeLLM instance, for scripting responses and inspecting recorded calls."""

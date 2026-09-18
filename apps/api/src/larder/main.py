@@ -15,7 +15,8 @@ from larder.db.session import init_session_factory
 from larder.errors import register_error_handlers
 from larder.llm.factory import get_llm
 from larder.logging import RequestIdMiddleware, configure_logging
-from larder.routers import health, households, me, meals, onboarding, pantry
+from larder.routers import health, households, me, meals, onboarding, pantry, plans
+from larder.services.plans import enqueue_first_plan
 
 API_PREFIX = "/api/v1"
 
@@ -45,11 +46,6 @@ async def lifespan(app: FastAPI):
         await engine.dispose()
 
 
-async def _no_first_plan(session, profile, household, request):
-    """Replaced by the plans service once plan generation exists (Task 18)."""
-    return None
-
-
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     app = FastAPI(
@@ -61,7 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.llm = get_llm(settings)
-    app.state.first_plan_hook = _no_first_plan
+    app.state.first_plan_hook = enqueue_first_plan
     configure_logging(settings)
     app.add_middleware(
         CORSMiddleware,
@@ -72,7 +68,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.add_middleware(RequestIdMiddleware)
     register_error_handlers(app)
-    for r in (health.router, me.router, onboarding.router, households.router, pantry.router, meals.router):
+    for r in (
+        health.router,
+        me.router,
+        onboarding.router,
+        households.router,
+        pantry.router,
+        meals.router,
+        plans.router,
+    ):
         app.include_router(r, prefix=API_PREFIX)
     return app
 
