@@ -1286,7 +1286,7 @@ async def test_onboarding_complete_enqueues_first_plan(client):
 **Interfaces:**
 - Produces: `build_shopping_list(entries, meals_by_id, from_date) -> ShoppingListOut` (LLD §6.8 shape); `unused_pantry_items(pantry, entries, meals_by_id, today) -> list[dict]`; `GET /plans/{plan_id}/shopping-list`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_shopping.py
@@ -1310,7 +1310,7 @@ def test_unused_excludes_spices_and_used():
 ```
 Integration test: generate a plan (as in Task 18) then `GET /plans/{id}/shopping-list` returns 200 with `groups` list and `total >= 0`.
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.7, §7.8. **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): shopping list and unused pantry hints`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.7, §7.8. **Step 4: Run** → PASS. **Step 5: Commit** `feat(api): shopping list and unused pantry hints`.
 
 ---
 
@@ -1325,7 +1325,7 @@ Integration test: generate a plan (as in Task 18) then `GET /plans/{id}/shopping
 **Interfaces:**
 - Produces: `weekly_due(household, local_now) -> str | None` (period key when due), `daily_due(household, local_now) -> str | None`; `async run_tick(session, now_utc, enqueue) -> TickReport`; `POST /internal/scheduler/tick` guarded by `X-Scheduler-Secret`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_scheduler_due.py
@@ -1378,7 +1378,7 @@ async def test_weekly_tick_idempotent(client, make_user_complete, monkeypatch):
 ```
 (Add `db_session` to that test's fixture list.)
 
-- [ ] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.5 with a module-level `utcnow()` for patching; weekly evaluated before daily for each household; gap-fill `end_date = min(today + 6, next_plan.start_date - 1)`; `refresh_runs` inserted with `ON CONFLICT DO NOTHING` before enqueueing; cleanup of old superseded plans. **Step 4: Run** `uv run pytest -q` → all PASS. **Step 5: Commit** `feat(api): scheduler tick endpoint`.
+- [x] **Step 2: Run to verify failure** → FAIL. **Step 3: Implement** per LLD §7.5 with a module-level `utcnow()` for patching; weekly evaluated before daily for each household; gap-fill `end_date = min(today + 6, next_plan.start_date - 1)`; `refresh_runs` inserted with `ON CONFLICT DO NOTHING` before enqueueing; cleanup of old superseded plans. **Step 4: Run** `uv run pytest -q` → all PASS. **Step 5: Commit** `feat(api): scheduler tick endpoint`.
 
 ---
 
