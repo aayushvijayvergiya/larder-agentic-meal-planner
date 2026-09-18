@@ -1,0 +1,24 @@
+# js
+node_modules/
+.next/
+dist/
+.turbo/
+.expo/
+coverage/
+playwright-report/
+test-results/
+
+# python
+apps/api/.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# env
+.env
+.env.*.local
+
+# os / editors
+.DS_Store
+Thumbs.db
