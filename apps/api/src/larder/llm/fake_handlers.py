@@ -12,6 +12,7 @@ from pydantic import BaseModel
 Handler = Callable[[dict, type[BaseModel]], BaseModel]
 
 DEFAULT_HANDLERS: dict[str, Handler] = {}
+TEXT_HANDLERS: dict[str, Callable[[dict], str]] = {}
 
 
 def handler(schema_name: str) -> Callable[[Handler], Handler]:
@@ -22,9 +23,34 @@ def handler(schema_name: str) -> Callable[[Handler], Handler]:
     return _register
 
 
+def text_handler(task: str) -> Callable[[Callable[[dict], str]], Callable[[dict], str]]:
+    def _register(fn: Callable[[dict], str]) -> Callable[[dict], str]:
+        TEXT_HANDLERS[task] = fn
+        return fn
+
+    return _register
+
+
 def register_default_handlers(fake) -> None:
     for name, fn in DEFAULT_HANDLERS.items():
         fake.register_handler(name, fn)
+    for task, fn in TEXT_HANDLERS.items():
+        fake.register_text_handler(task, fn)
+
+
+@text_handler("onboarding_question")
+def _onboarding_question(ctx: dict) -> str:
+    q = str(ctx.get("default_question") or "Tell me more.")
+    name = (ctx.get("draft_so_far") or {}).get("display_name")
+    if ctx.get("error"):
+        return f"Sorry, {ctx['error']}. {q}"
+    return f"{name}, {q[0].lower() + q[1:]}" if name and ctx.get("field") != "display_name" else q
+
+
+@handler("ParsedFieldAnswer")
+def _parsed_field_answer(ctx: dict, schema: type[BaseModel]) -> BaseModel:
+    # Unscripted free-text answers are not understood by the fake, so the question is re-asked.
+    return schema(value=None, confidence=0.0)
 
 
 @handler("CategoryAssignments")

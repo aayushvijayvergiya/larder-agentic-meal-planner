@@ -15,6 +15,7 @@ class FakeLLM:
         self._text_queue: list[str] = []
         self._structured_queues: dict[str, list[BaseModel]] = {}
         self._handlers: dict[str, Callable[[dict, type[BaseModel]], BaseModel]] = {}
+        self._text_handlers: dict[str, Callable[[dict], str]] = {}
         self._fail: Exception | None = None
         self.calls: list[dict] = []
         register_default_handlers(self)
@@ -31,6 +32,10 @@ class FakeLLM:
 
     def register_handler(self, schema_name: str, fn: Callable[[dict, type[BaseModel]], BaseModel]) -> None:
         self._handlers[schema_name] = fn
+
+    def register_text_handler(self, task: str, fn: Callable[[dict], str]) -> None:
+        """Text handlers key off the `task` value inside the prompt's <context> block."""
+        self._text_handlers[task] = fn
 
     def reset(self) -> None:
         self._text_queue.clear()
@@ -49,6 +54,10 @@ class FakeLLM:
         self._maybe_fail()
         if self._text_queue:
             return self._text_queue.pop(0)
+        ctx = extract_context(user)
+        fn = self._text_handlers.get(str(ctx.get("task", "")))
+        if fn is not None:
+            return fn(ctx)
         return f"[fake] {user[:80]}"
 
     async def complete_structured(self, *, system: str, user: str, schema, temperature: float = 0.2):
