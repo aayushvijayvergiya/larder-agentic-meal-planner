@@ -35,7 +35,7 @@
 **Interfaces:**
 - Produces: root scripts `dev`, `build`, `lint`, `typecheck`, `test`, `gen`, `api`, `api:test` (LLD §1).
 
-- [ ] **Step 1: Initialise git and workspace files**
+- [x] **Step 1: Initialise git and workspace files**
 
 ```bash
 git init -b main
@@ -83,11 +83,11 @@ packages:
 `.gitignore`: `node_modules/`, `.next/`, `dist/`, `.turbo/`, `.env`, `.env.*.local`, `apps/api/.venv/`, `__pycache__/`, `.pytest_cache/`, `.expo/`, `coverage/`, `playwright-report/`, `test-results/`.
 `.nvmrc`: `22`. `.env.example`: copy verbatim from LLD §11. `README.md`: title, one-paragraph description, "Run locally" (Docker Postgres, `pnpm api`, `pnpm dev`), links to the three docs.
 
-- [ ] **Step 2: Install and verify**
+- [x] **Step 2: Install and verify**
 
 Run: `pnpm install` → creates `pnpm-lock.yaml`. Run: `pnpm turbo --version` → prints a 2.x version.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add -A && git commit -m "chore: bootstrap monorepo workspace"
@@ -103,7 +103,7 @@ git add -A && git commit -m "chore: bootstrap monorepo workspace"
 **Interfaces:**
 - Produces: `get_settings() -> Settings` with every variable in LLD §2.4; `create_app(settings=None) -> FastAPI`; `GET /api/v1/health`.
 
-- [ ] **Step 1: Create the project**
+- [x] **Step 1: Create the project**
 
 ```bash
 cd apps/api
@@ -123,7 +123,7 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "UP"]
 ```
 
-- [ ] **Step 2: Write the failing health test**
+- [x] **Step 2: Write the failing health test**
 
 `tests/conftest.py` (initial version; extended in Task 3):
 ```python
@@ -157,11 +157,11 @@ async def test_health_reports_provider(client):
     assert r.json()["llm_provider"] == "fake"
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `uv run pytest tests/integration/test_health.py -v` → FAIL (`ModuleNotFoundError: larder.config`).
 
-- [ ] **Step 4: Implement settings, app factory and health**
+- [x] **Step 4: Implement settings, app factory and health**
 
 `src/larder/config.py`:
 ```python
@@ -224,12 +224,12 @@ async def health(request: Request):
 ```
 `src/larder/main.py`: `create_app` per LLD §2.2 with only `health.router` for now; `lifespan` creates `app.state.engine = create_async_engine(settings.database_url)` and disposes it on shutdown; `app.state.settings = settings`.
 
-- [ ] **Step 5: Start a test database and run the test**
+- [x] **Step 5: Start a test database and run the test**
 
 Run: `docker run -d --name larder-test-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=larder_test -p 5433:5432 postgres:16`
 Run: `uv run pytest tests/integration/test_health.py -v` → PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat(api): project skeleton with settings and health endpoint"
@@ -250,7 +250,7 @@ git add -A && git commit -m "feat(api): project skeleton with settings and healt
 **Interfaces:**
 - Produces: ORM classes `Profile, Household, HouseholdMember, HouseholdInvite, PantryItem, Meal, MealIngredient, MealPlan, PlanEntry, PlanEntryVariation, PlanJob, MealFeedback, RefreshRun` with columns exactly as LLD §3.2; Python enums in `db/models/enums.py` named as LLD §3.1; `get_session()` dependency yielding `AsyncSession`; `async_session_factory`.
 
-- [ ] **Step 1: Write the failing schema test**
+- [x] **Step 1: Write the failing schema test**
 
 ```python
 # tests/integration/test_schema.py
@@ -274,11 +274,11 @@ async def test_one_household_per_user(db_session, make_user_complete):
         await db_session.flush()
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `uv run pytest tests/integration/test_schema.py -v` → FAIL (fixture `db_session` not found).
 
-- [ ] **Step 3: Implement base, session and models**
+- [x] **Step 3: Implement base, session and models**
 
 `db/base.py`:
 ```python
@@ -338,7 +338,7 @@ class HouseholdMember(Base):
     joined_at: Mapped[datetime] = mapped_column(server_default=func.now())
 ```
 
-- [ ] **Step 4: Alembic**
+- [x] **Step 4: Alembic**
 
 Run: `uv run alembic init -t async alembic`. Edit `alembic/env.py`: `target_metadata = Base.metadata`; read URL from `get_settings().database_url`; add
 ```python
@@ -347,7 +347,7 @@ def include_object(obj, name, type_, reflected, compare_to):
 ```
 and pass `include_object=include_object` to `context.configure`. Generate: `uv run alembic revision --autogenerate -m "initial"` → rename to `0001_initial.py`; verify it creates all enums and tables; add `op.execute("create extension if not exists pgcrypto")` at the top of `upgrade()` (for `gen_random_uuid` on older Postgres).
 
-- [ ] **Step 5: Extend conftest**
+- [x] **Step 5: Extend conftest**
 
 Add to `tests/conftest.py`:
 ```python
@@ -398,11 +398,11 @@ def make_user_complete(db_session):
 ```
 Wire `lifespan` in `main.py` to call `init_session_factory(engine)`.
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `uv run pytest -v` → PASS (health + schema).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A && git commit -m "feat(api): database models, initial migration and test fixtures"
@@ -420,7 +420,7 @@ git add -A && git commit -m "feat(api): database models, initial migration and t
 **Interfaces:**
 - Produces: `class ApiError(Exception): def __init__(self, code: str, status: int, message: str, details: dict | None = None)`; helper constructors `not_found(msg)`, `forbidden(msg)`, `conflict(msg)`, `validation(msg, field=None)`, `unauthorized()`; `register_error_handlers(app)`; `RequestIdMiddleware` adding `X-Request-Id`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 async def test_validation_error_envelope(client):
@@ -449,11 +449,11 @@ async def test_request_validation_envelope(client):
     assert r.status_code == 422 and r.json()["error"]["code"] == "validation_error"
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL (`larder.errors` missing).
+- [x] **Step 2: Run to verify failure** → FAIL (`larder.errors` missing).
 
-- [ ] **Step 3: Implement** `errors.py` (handlers for `ApiError`, `RequestValidationError` → 422 envelope with `details={"errors": exc.errors()}`, generic `Exception` → 500 `internal_error` with logging) and `logging.py` (JSON formatter with `request_id`, `user_id` from `request.state` when set; middleware generating `uuid4` request ids). Register both in `create_app`.
+- [x] **Step 3: Implement** `errors.py` (handlers for `ApiError`, `RequestValidationError` → 422 envelope with `details={"errors": exc.errors()}`, generic `Exception` → 500 `internal_error` with logging) and `logging.py` (JSON formatter with `request_id`, `user_id` from `request.state` when set; middleware generating `uuid4` request ids). Register both in `create_app`.
 
-- [ ] **Step 4: Run tests** → PASS. **Step 5: Commit** `feat(api): error envelope and request logging`.
+- [x] **Step 4: Run tests** → PASS. **Step 5: Commit** `feat(api): error envelope and request logging`.
 
 ---
 
@@ -468,7 +468,7 @@ async def test_request_validation_envelope(client):
 - Consumes: models from Task 3, `ApiError` from Task 4.
 - Produces: `verify_token(token, settings) -> TokenClaims`; `CurrentUser` dataclass; dependencies `get_current_user`, `require_household`, `require_owner` (LLD §4.2); `ProfileOut`, `ProfilePatch`, `HouseholdOut`, `MemberSummary`, `SlotDef` (LLD §6.1, §6.3); `profiles.get_or_create_profile(session, claims) -> Profile`; `profiles.update_profile(session, profile, patch) -> Profile`.
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/integration/test_auth.py
@@ -500,9 +500,9 @@ async def test_patch_me_rejects_out_of_range(client, make_user_complete):
     assert r.status_code == 422
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL (404 on `/me`).
+- [x] **Step 2: Run to verify failure** → FAIL (404 on `/me`).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `auth/jwt.py` exactly as LLD §4.1. `auth/deps.py`:
 ```python
@@ -518,7 +518,7 @@ async def get_current_user(request: Request, session: AsyncSession = Depends(get
 ```
 `ProfilePatch` fields with validators: `height_cm: int | None = Field(None, ge=50, le=250)`, `weight_kg: float | None = Field(None, ge=20, le=400)`, `max_prep_minutes: int | None = Field(None, ge=5, le=240)`, list fields normalised with `normalize_name` (create `services/normalize.py` now with just `normalize_name` per LLD §7.1; Task 8 completes it), `medical_conditions: list[MedicalCondition]` with `name` and optional `notes`. `HouseholdOut.from_model(household)` builds `members` with display names via the loaded relationship (`HouseholdMember.profile` relationship).
 
-- [ ] **Step 4: Run tests** → PASS. **Step 5: Commit** `feat(api): supabase jwt auth and /me endpoints`.
+- [x] **Step 4: Run tests** → PASS. **Step 5: Commit** `feat(api): supabase jwt auth and /me endpoints`.
 
 ---
 
@@ -532,7 +532,7 @@ async def get_current_user(request: Request, session: AsyncSession = Depends(get
 **Interfaces:**
 - Produces: `LLM` protocol, `LLMError`, `FakeLLM` with `script_text(list[str])`, `script_structured(schema, list[BaseModel])`, `fail_next(exc)`, `register_handler(schema_name, fn)`, `calls: list[dict]` (recorded prompts); `GroqLLM(settings)`; `get_llm(settings) -> LLM`; helper `extract_context(user_prompt) -> dict` parsing the `<context>` JSON block (LLD §5).
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```python
 # tests/unit/test_fake_llm.py
@@ -572,9 +572,9 @@ def test_factory_picks_groq_with_key():
     assert get_llm(s).name == "groq:openai/gpt-oss-120b"
 ```
 
-- [ ] **Step 2: Run to verify failure** → FAIL.
+- [x] **Step 2: Run to verify failure** → FAIL.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `llm/base.py` per LLD §5.1 plus:
 ```python
@@ -611,7 +611,7 @@ class GroqLLM:
         raise LLMError(str(last))
 ```
 
-- [ ] **Step 4: Run** `uv run pytest tests/unit -v` → PASS. **Step 5: Commit** `feat(api): llm provider layer with fake and groq implementations`.
+- [x] **Step 4: Run** `uv run pytest tests/unit -v` → PASS. **Step 5: Commit** `feat(api): llm provider layer with fake and groq implementations`.
 
 ---
 
