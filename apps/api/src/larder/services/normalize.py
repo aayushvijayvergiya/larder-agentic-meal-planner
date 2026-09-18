@@ -23,10 +23,19 @@ _STOP = {
 }
 
 
+_IRREGULAR = {"leaves": "leaf", "loaves": "loaf", "halves": "half", "knives": "knife", "shelves": "shelf"}
+
+
 def _singular(word: str) -> str:
-    if len(word) > 3 and word.endswith("s") and not word.endswith("ss"):
-        return word[:-1]
-    return word
+    if word in _IRREGULAR:
+        return _IRREGULAR[word]
+    if len(word) <= 3 or not word.endswith("s") or word.endswith(("ss", "us", "is")):
+        return word
+    if word.endswith("oes"):
+        return word[:-2]  # tomatoes -> tomato
+    if word.endswith(("ches", "shes", "xes", "sses")):
+        return word[:-2]  # radishes -> radish, peaches -> peach
+    return word[:-1]
 
 
 def normalize_name(s: str) -> str:
