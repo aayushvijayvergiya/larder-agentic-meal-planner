@@ -116,3 +116,45 @@ def make_user_complete(db_session):
         return SimpleNamespace(profile=p, household=h, headers=auth_headers(p.id, p.email))
 
     return _make
+
+
+@pytest.fixture
+def planning_context_factory():
+    """In-memory PlanningContext: one vegetarian member, the given pantry names, one library meal 'Dal'."""
+
+    def _make(pantry: list[str] | None = None, members: int = 1):
+        from larder.agents.planner.state import IngredientCtx, MealCtx, MemberCtx, PantryCtx, PlanningContext
+        from larder.db.models import DEFAULT_SLOTS
+        from larder.schemas.common import SlotDef
+        from larder.services.normalize import normalize_name
+
+        names = ["Priya", "Aarav", "Meera"]
+        member_list = [
+            MemberCtx(id=uuid.uuid4(), display_name=names[i % 3], diet_type="vegetarian", max_prep_minutes=45)
+            for i in range(members)
+        ]
+        dal = MealCtx(
+            id=uuid.uuid4(),
+            name="Dal",
+            cuisine="north_indian",
+            meal_types=["lunch", "dinner"],
+            diet_tags=["vegetarian", "vegan"],
+            allergens=[],
+            prep_minutes=30,
+            source="user",
+            ingredients=[
+                IngredientCtx(name="dal", normalized_name="dal", category="pulses"),
+                IngredientCtx(name="onion", normalized_name="onion", category="vegetables"),
+                IngredientCtx(name="salt", normalized_name="salt", category="spices", is_staple=True),
+            ],
+        )
+        return PlanningContext(
+            members=member_list,
+            pantry=[PantryCtx(name=n, normalized_name=normalize_name(n), category="other") for n in (pantry or [])],
+            library=[dal],
+            slots=[SlotDef(**s) for s in DEFAULT_SLOTS],
+            requested=[],
+            library_count_and_max_updated="1:x",
+        )
+
+    return _make
