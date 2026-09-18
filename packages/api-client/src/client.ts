@@ -41,8 +41,9 @@ export function unwrap<T>(result: { data?: T; error?: unknown; response: Respons
   return result.data as T;
 }
 
+/** Generated paths already carry the /api/v1 prefix, so the base URL is the API origin. A trailing /api/v1 is tolerated. */
 export function createApi(baseUrl: string, getToken: GetToken, fetchImpl?: typeof fetch): Api {
-  const base = baseUrl.replace(/\/$/, "");
+  const base = baseUrl.replace(/\/$/, "").replace(/\/api\/v1$/, "");
   const raw = createClient<paths>({ baseUrl: base, fetch: fetchImpl });
   const auth: Middleware = {
     async onRequest({ request }) {
@@ -55,7 +56,7 @@ export function createApi(baseUrl: string, getToken: GetToken, fetchImpl?: typeo
   const doFetch = fetchImpl ?? fetch;
 
   async function request<T>(method: string, path: string, init?: { body?: unknown; query?: Record<string, string> }) {
-    const url = new URL(base + path);
+    const url = new URL(base + (path.startsWith("/api/") ? path : "/api/v1" + path));
     for (const [k, v] of Object.entries(init?.query ?? {})) url.searchParams.set(k, v);
     const headers = new Headers({ Accept: "application/json" });
     const token = await getToken();

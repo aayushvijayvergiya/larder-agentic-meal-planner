@@ -12,7 +12,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
   const api = useMemo(
     () =>
-      createApi(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1", async () => {
+      createApi(process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000", async () => {
         const { data } = await supabaseBrowser().auth.getSession();
         return data.session?.access_token ?? null;
       }),

@@ -8,10 +8,11 @@ describe("createApi", () => {
   it("adds the bearer token and converts the error envelope", async () => {
     const fetchMock = vi.fn(async (req: Request) => {
       expect(req.headers.get("authorization")).toBe("Bearer t");
+      expect(new URL(req.url).pathname).toBe("/api/v1/pantry");
       return json({ error: { code: "conflict", message: "dup", details: null } }, 409);
     });
     const api = createApi("http://x/api/v1/", async () => "t", fetchMock as unknown as typeof fetch);
-    expect(api.baseUrl).toBe("http://x/api/v1");
+    expect(api.baseUrl).toBe("http://x");
     await expect(api.request("GET", "/pantry")).rejects.toMatchObject({ code: "conflict", status: 409, message: "dup" });
   });
 
