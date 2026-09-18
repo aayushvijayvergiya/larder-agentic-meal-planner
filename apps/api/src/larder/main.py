@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from larder.config import Settings, get_settings
 from larder.db.session import init_session_factory
+from larder.errors import register_error_handlers
+from larder.logging import RequestIdMiddleware, configure_logging
 from larder.routers import health
 
 API_PREFIX = "/api/v1"
@@ -35,6 +37,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings
+    configure_logging(settings)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
@@ -42,6 +45,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
         allow_credentials=True,
     )
+    app.add_middleware(RequestIdMiddleware)
+    register_error_handlers(app)
     for r in (health.router,):
         app.include_router(r, prefix=API_PREFIX)
     return app
