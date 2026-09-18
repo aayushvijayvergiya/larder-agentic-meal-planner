@@ -158,3 +158,87 @@ def planning_context_factory():
         )
 
     return _make
+
+
+SEED_PANTRY = ["spinach", "paneer", "rice", "toor dal", "onion", "tomato", "poha", "potato", "cumin"]
+SEED_MEALS = {
+    "Palak paneer": ["spinach", "paneer"],
+    "Dal tadka": ["toor dal", "onion", "tomato"],
+    "Jeera rice": ["rice", "cumin"],
+    "Poha": ["poha", "onion", "potato"],
+}
+
+
+@pytest.fixture
+def plan_setup(client, db_session, make_user_complete):
+    """Seeds a household (pantry + library) and creates a plan row + queued job; returns the PlannerInput."""
+    from datetime import date, timedelta
+
+    state: dict = {}
+
+    async def _setup(
+        mode: str = "week",
+        plan_id=None,
+        target_date=None,
+        target_slot_key=None,
+        target_entry_id=None,
+        swap_reason=None,
+        user=None,
+        scope: str = "single",
+        start=None,
+    ):
+        from larder.agents.planner.state import PlannerInput
+        from larder.db.models import MealPlan, PlanJob
+
+        user = user or state.get("user") or await make_user_complete()
+        if state.get("seeded_for") != user.profile.id:
+            await client.post(
+                "/api/v1/pantry/items", json={"items": [{"name": n} for n in SEED_PANTRY]}, headers=user.headers
+            )
+            for name, ings in SEED_MEALS.items():
+                r = await client.post("/api/v1/meals", json={"name": name, "ingredients": ings}, headers=user.headers)
+                assert r.status_code == 201, r.text
+            state["seeded_for"] = user.profile.id
+        state["user"] = user
+        start = start or date.today()
+        if plan_id is None:
+            plan = MealPlan(
+                household_id=user.household.id,
+                scope=scope,
+                member_id=user.profile.id if scope == "single" else None,
+                start_date=start,
+                end_date=start + timedelta(days=6),
+            )
+            db_session.add(plan)
+            await db_session.flush()
+            plan_id = plan.id
+        else:
+            plan = await db_session.get(MealPlan, plan_id)
+            start = plan.start_date
+        job = PlanJob(
+            plan_id=plan_id,
+            mode=mode,
+            origin="user",
+            target_date=target_date,
+            target_slot_key=target_slot_key,
+            target_entry_id=target_entry_id,
+            swap_reason=swap_reason,
+        )
+        db_session.add(job)
+        await db_session.commit()
+        return PlannerInput(
+            job_id=job.id,
+            plan_id=plan_id,
+            household_id=user.household.id,
+            scope=scope,
+            member_id=user.profile.id if scope == "single" else None,
+            mode=mode,
+            start_date=start,
+            end_date=start + timedelta(days=6),
+            target_date=target_date,
+            target_slot_key=target_slot_key,
+            target_entry_id=target_entry_id,
+            swap_reason=swap_reason,
+        )
+
+    return _setup

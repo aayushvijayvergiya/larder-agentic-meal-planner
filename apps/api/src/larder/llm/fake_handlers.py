@@ -87,3 +87,46 @@ def _meal_enrichment(ctx: dict, schema: type[BaseModel]) -> BaseModel:
         prep_minutes=30,
         ingredients=ingredients,
     )
+
+
+@handler("PlanDraft")
+def _plan_draft(ctx: dict, schema: type[BaseModel]) -> BaseModel:
+    """Fills every requested (date, slot) round-robin from the shortlist (max two uses each), then with
+    allergen-free simple bowls, so the fake always yields a plan the validator accepts."""
+    from collections import Counter
+
+    from larder.agents.planner.fallback import FALLBACK_REASON, SIMPLE_BOWL
+
+    requested = [tuple(p) for p in ctx.get("requested", [])]
+    shortlist = ctx.get("shortlist", [])
+    counts: Counter[str] = Counter()
+    for f in ctx.get("fixed_entries", []):
+        counts[f.get("meal_name", "")] += 1
+    entries = []
+    cursor = 0
+    variant_by_slot: dict[str, int] = {}
+    for d, slot in requested:
+        chosen = None
+        for _ in range(len(shortlist)):
+            cand = shortlist[cursor % len(shortlist)]
+            cursor += 1
+            if counts[cand["name"]] < 2:
+                counts[cand["name"]] += 1
+                covered = ", ".join(cand.get("covered", [])[:3])
+                chosen = {
+                    "date": d,
+                    "slot_key": slot,
+                    "existing_meal_id": cand["existing_meal_id"],
+                    "reason": f"Uses the {covered} you already have." if covered else "A household favourite.",
+                }
+                break
+        if chosen is None:
+            variant = variant_by_slot.get(slot, 0)
+            while counts[SIMPLE_BOWL(slot, variant).name] >= 2:
+                variant += 1
+            bowl = SIMPLE_BOWL(slot, variant)
+            counts[bowl.name] += 1
+            variant_by_slot[slot] = variant
+            chosen = {"date": d, "slot_key": slot, "new_meal": bowl.model_dump(), "reason": FALLBACK_REASON}
+        entries.append(chosen)
+    return schema(entries=entries)

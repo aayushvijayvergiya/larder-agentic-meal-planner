@@ -50,6 +50,7 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 "alembic/versions/*" = ["E501"]
+"src/larder/agents/*/prompts.py" = ["E501"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Header", "fastapi.Query", "fastapi.Body", "fastapi.Path"]
