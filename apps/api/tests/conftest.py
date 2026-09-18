@@ -45,6 +45,14 @@ async def client():
 
 
 @pytest.fixture
+def fake_llm(client):
+    """The app's FakeLLM instance, for scripting responses and inspecting recorded calls."""
+    llm = client._transport.app.state.llm
+    llm.reset()
+    return llm
+
+
+@pytest.fixture
 async def db_session(client):
     async with db_session_module.session_factory()() as s:
         yield s
