@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     jwt_audience: str = "authenticated"
     llm_provider: Literal["groq", "fake"] | None = None
     groq_api_key: str = ""
-    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_base_url: str = "https://api.groq.com"
     groq_model: str = "openai/gpt-oss-120b"
     llm_timeout_seconds: int = 60
     scheduler_secret: str = ""

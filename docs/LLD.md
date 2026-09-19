@@ -175,7 +175,7 @@ FastAPI's default `RequestValidationError` is converted into this envelope with 
 | `JWT_AUDIENCE` | default `authenticated` | |
 | `LLM_PROVIDER` | `groq` \| `fake`; default `fake` if `GROQ_API_KEY` empty else `groq` | |
 | `GROQ_API_KEY` | optional | Added after development |
-| `GROQ_BASE_URL` | default `https://api.groq.com/openai/v1` | |
+| `GROQ_BASE_URL` | default `https://api.groq.com` | The `groq` SDK appends `/openai/v1` itself; including it here doubles the path |
 | `GROQ_MODEL` | default `openai/gpt-oss-120b` | Any Groq-hosted chat model with tool use; structured-output models preferred (see §5.2) |
 | `LLM_TIMEOUT_SECONDS` | default `60` | |
 | `SCHEDULER_SECRET` | required in production | `X-Scheduler-Secret` header value |
