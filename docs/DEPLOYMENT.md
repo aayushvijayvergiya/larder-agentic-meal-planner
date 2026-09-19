@@ -19,7 +19,7 @@ Target architecture: web on Vercel, API + cron on Render, database and auth on S
    - On **larder-scheduler**: `API_URL` (the `larder-api` service's public `onrender.com` URL, e.g. `https://larder-api.onrender.com`). `SCHEDULER_SECRET` is wired automatically from the web service via `fromService`.
 4. Deploy the blueprint. The API's Dockerfile runs `alembic upgrade head` on container start, so the schema is created on first boot — no separate migration step.
 5. Confirm: `curl -s https://<larder-api>.onrender.com/api/v1/health` returns `{"status":"ok","database":"ok","llm_provider":"fake"}`.
-6. When you have a Groq key, add `GROQ_API_KEY` to **larder-api** and trigger a manual redeploy (or restart) — `LLM_PROVIDER` auto-switches to `groq` when the key is present; no code change needed.
+6. When you have a Groq key, add `GROQ_API_KEY` to **larder-api** and trigger a manual redeploy (or restart) — `LLM_PROVIDER` auto-switches to `groq` when the key is present; no code change needed. `GROQ_MODEL` is also a blank, promptable env var (Environment tab on the service), so you can set it in the same place as the key; leave it unset to use the default (`openai/gpt-oss-120b`).
 
 ## 3. Vercel (web)
 

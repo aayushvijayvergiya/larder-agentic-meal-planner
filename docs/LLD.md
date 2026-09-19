@@ -1106,7 +1106,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
-        value: openai/gpt-oss-120b
+        sync: false # optional; falls back to openai/gpt-oss-120b if left unset
       - key: SCHEDULER_SECRET
         generateValue: true
       - key: CORS_ORIGINS
