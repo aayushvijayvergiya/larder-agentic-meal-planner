@@ -49,7 +49,7 @@ larder/                              # monorepo root (this folder)
 └── packages/
     ├── api-client/                  # TS: generated OpenAPI types, fetch client, TanStack Query hooks
     │   ├── package.json  tsconfig.json
-    │   ├── scripts/gen.sh           # openapi-typescript from ${API_URL:-http://localhost:8000}/openapi.json
+    │   ├── scripts/gen.mjs          # openapi-typescript from ${API_URL:-http://localhost:8000}/openapi.json
     │   └── src/{schema.d.ts, client.ts, hooks/*.ts, index.ts}
     └── design-tokens/               # TS: colors, type, spacing, radii for light and dark
         ├── package.json  tsconfig.json
