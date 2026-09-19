@@ -19,4 +19,4 @@ A pantry-first, zero-waste meal planner for individuals and families. The planne
 4. API tests: start a test DB on port 5433 (`-e POSTGRES_DB=larder_test`) and run `pnpm api:test`.
 5. Web and mobile: `pnpm install` then `pnpm dev`.
 
-See `docs/HLD.md` for the architecture, `docs/LLD.md` for every contract, and `docs/IMPLEMENTATION_PLAN.md` for the build order.
+See `docs/HLD.md` for the architecture, `docs/LLD.md` for every contract, `docs/IMPLEMENTATION_PLAN.md` for the build order, and `docs/DEPLOYMENT.md` to deploy to Render, Vercel and Supabase.

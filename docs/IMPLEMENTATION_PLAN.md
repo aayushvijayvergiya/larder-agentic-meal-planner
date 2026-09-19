@@ -1623,7 +1623,7 @@ it("renders reason, coverage, variations and feedback state", () => {
 - Create: `apps/api/Dockerfile` (LLD §11), `render.yaml` (LLD §11), `.github/workflows/ci.yml` (LLD §10.4), `docs/DEPLOYMENT.md`
 - Modify: `README.md` (link to deployment guide)
 
-- [ ] **Step 1: Build and run the image locally**
+- [x] **Step 1: Build and run the image locally**
 ```bash
 docker build -t larder-api apps/api
 docker run --rm -p 8000:8000 -e DATABASE_URL=postgresql+asyncpg://postgres:postgres@host.docker.internal:5433/larder_test -e LLM_PROVIDER=fake -e SCHEDULER_SECRET=x -e APP_ENV=production larder-api
@@ -1631,7 +1631,7 @@ curl -s localhost:8000/api/v1/health
 ```
 Expected: `{"status":"ok","database":"ok","llm_provider":"fake"}`.
 
-- [ ] **Step 2: Write `docs/DEPLOYMENT.md`** with numbered steps: create Supabase project (auth provider, pooler URL, JWT mode); create Render Blueprint from `render.yaml` and set `DATABASE_URL`, `SUPABASE_URL`, `CORS_ORIGINS`, `API_URL`; add `GROQ_API_KEY` when available (no redeploy needed beyond restart; `LLM_PROVIDER` auto-switches to `groq`); create the Vercel project with root `apps/web` and the three env vars; run `pnpm gen` against the deployed API URL before building the web app in CI (or commit the schema); mobile: `eas build --profile preview` with `EXPO_PUBLIC_*` in `eas.json`.
+- [x] **Step 2: Write `docs/DEPLOYMENT.md`** with numbered steps: create Supabase project (auth provider, pooler URL, JWT mode); create Render Blueprint from `render.yaml` and set `DATABASE_URL`, `SUPABASE_URL`, `CORS_ORIGINS`, `API_URL`; add `GROQ_API_KEY` when available (no redeploy needed beyond restart; `LLM_PROVIDER` auto-switches to `groq`); create the Vercel project with root `apps/web` and the three env vars; run `pnpm gen` against the deployed API URL before building the web app in CI (or commit the schema); mobile: `eas build --profile preview` with `EXPO_PUBLIC_*` in `eas.json`.
 
 - [ ] **Step 3: Push CI** and confirm both jobs are green on GitHub Actions.
 

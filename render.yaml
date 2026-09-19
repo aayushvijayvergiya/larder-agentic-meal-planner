@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: larder-api
+    runtime: docker
+    rootDir: apps/api
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: SCHEDULER_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: APP_ENV
+        value: production
+  - type: cron
+    name: larder-scheduler
+    runtime: docker
+    rootDir: apps/api
+    schedule: "*/15 * * * *"
+    dockerCommand: sh -c 'curl -fsS -X POST "$API_URL/api/v1/internal/scheduler/tick" -H "X-Scheduler-Secret: $SCHEDULER_SECRET"'
+    envVars:
+      - key: API_URL
+        sync: false
+      - key: SCHEDULER_SECRET
+        fromService:
+          type: web
+          name: larder-api
+          envVarKey: SCHEDULER_SECRET
