@@ -1118,7 +1118,7 @@ services:
     runtime: docker
     rootDir: apps/api
     schedule: "*/15 * * * *"
-    dockerCommand: sh -c 'curl -fsS -X POST "$API_URL/api/v1/internal/scheduler/tick" -H "X-Scheduler-Secret: $SCHEDULER_SECRET"'
+    dockerCommand: "curl -fsS -X POST \"$API_URL/api/v1/internal/scheduler/tick\" -H \"X-Scheduler-Secret: $SCHEDULER_SECRET\""
     envVars:
       - key: API_URL
         sync: false
