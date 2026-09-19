@@ -22,6 +22,8 @@ class GroqLLM:
             base_url=settings.groq_base_url,
             timeout=settings.llm_timeout_seconds,
             max_retries=1,
+            max_tokens=16000,
+            reasoning_effort="low",
         )
 
     async def complete_text(self, *, system: str, user: str, temperature: float = 0.7) -> str:
